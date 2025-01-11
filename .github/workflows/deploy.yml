@@ -2,40 +2,71 @@ name: Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v4
+
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
+
       - name: Install pnpm
-        run: npm install -g pnpm
-        
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
       - name: Install dependencies
         run: pnpm install
-        
+
       - name: Build
         run: pnpm build
-        
-      - name: Setup SSH
+
+      # Deploy only if push to main branch
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          echo "Host app.gurupass.tech" >> ~/.ssh/config
-          echo "  HostName app.gurupass.tech" >> ~/.ssh/config
-          echo "  User ubuntu" >> ~/.ssh/config
-          echo "  IdentityFile ~/.ssh/deploy_key" >> ~/.ssh/config
-          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-        
-      - name: Deploy
+          rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" dist/ ubuntu@app.gurupass.tech:~/guru-vpn-tma/dist/
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ubuntu@app.gurupass.tech "cd ~/guru-vpn-tma && pm2 restart guru-vpn-tma"
+
+      # Deploy to staging if push to dev branch
+      - name: Deploy to Staging
+        if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
-          rsync -avz --delete dist/ ubuntu@app.gurupass.tech:~/guru-vpn-tma/dist/
-          ssh ubuntu@app.gurupass.tech 'cd ~/guru-vpn-tma && pm2 restart guru-vpn-tma || pm2 start npm --name guru-vpn-tma -- run preview'
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" dist/ ubuntu@app.gurupass.tech:~/guru-vpn-tma-staging/dist/
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ubuntu@app.gurupass.tech "cd ~/guru-vpn-tma-staging && pm2 restart guru-vpn-tma-staging || pm2 start ecosystem.config.js --only guru-vpn-tma-staging"
