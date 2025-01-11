@@ -1,5 +1,5 @@
 import React from 'react';
-import { WebApp } from '@twa-dev/sdk';
+import WebApp from '@twa-dev/sdk';
 
 const Subscribe: React.FC = () => {
   const handleSubscribe = async () => {

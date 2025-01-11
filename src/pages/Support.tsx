@@ -1,5 +1,5 @@
 import React from 'react';
-import { WebApp } from '@twa-dev/sdk';
+import WebApp from '@twa-dev/sdk';
 
 const Support: React.FC = () => {
   const handleContactSupport = () => {
