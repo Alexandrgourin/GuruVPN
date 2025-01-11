@@ -68,5 +68,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ubuntu@app.gurupass.tech "mkdir -p ~/guru-vpn-tma-staging/dist"
           rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" dist/ ubuntu@app.gurupass.tech:~/guru-vpn-tma-staging/dist/
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ubuntu@app.gurupass.tech "cd ~/guru-vpn-tma-staging && pm2 restart guru-vpn-tma-staging || pm2 start ecosystem.config.js --only guru-vpn-tma-staging"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ubuntu@app.gurupass.tech "cd ~/guru-vpn-tma-staging && pm2 restart guru-vpn-tma-staging || pm2 start ecosystem.staging.config.js"
