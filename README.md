@@ -1,11 +1,30 @@
-# React + TypeScript + Vite
+# GuruVPN Telegram Mini App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A Telegram Mini App for managing VPN subscriptions and configurations.
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+```
+
+## Deployment
+
+The app is automatically deployed to production when changes are pushed to the main branch.
+
+### Production URL
+https://app.gurupass.tech
+
+### Tech Stack
+- React + TypeScript
+- Vite
+- PM2 for process management
+- Nginx as reverse proxy
+- GitHub Actions for CI/CD
 
 ## Expanding the ESLint configuration
 
