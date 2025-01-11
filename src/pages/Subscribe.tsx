@@ -36,7 +36,7 @@ const Subscribe: React.FC = () => {
       }));
 
       // Показываем сообщение пользователю
-      const result = await WebApp.showPopup({
+      WebApp.showPopup({
         title: 'Подписка',
         message: `Вы выбрали план "${plan.title}". Стоимость ${plan.price} руб.`,
         buttons: [
@@ -45,10 +45,12 @@ const Subscribe: React.FC = () => {
         ]
       });
 
-      if (result === 'pay') {
-        // Здесь будет обработка оплаты
+      // После закрытия попапа отправляем запрос на оплату
+      WebApp.MainButton.setText('Оплатить');
+      WebApp.MainButton.show();
+      WebApp.MainButton.onClick(() => {
         WebApp.showAlert('Перенаправление на оплату...');
-      }
+      });
     } catch (error) {
       console.error('Payment error:', error);
       WebApp.showAlert('Произошла ошибка при оформлении подписки');
