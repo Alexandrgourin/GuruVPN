@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { WebApp } from '@telegram-apps/sdk';
+import { WebApp } from '@twa-dev/sdk';
 
 type Platform = 'ios' | 'android' | 'androidtv' | 'windows' | 'macos' | 'macos-intel';
 

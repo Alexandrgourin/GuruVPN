@@ -6,7 +6,7 @@ import Setup from './pages/Setup'
 import Profile from './pages/Profile'
 import Support from './pages/Support'
 import Layout from './components/Layout'
-import { WebApp } from '@telegram-apps/sdk'
+import { WebApp } from '@twa-dev/sdk'
 import './App.css'
 
 function App() {
