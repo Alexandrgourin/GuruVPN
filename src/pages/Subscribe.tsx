@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import WebApp from '@twa-dev/sdk';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 interface SubscriptionPlan {
   id: string;
@@ -27,8 +28,12 @@ const plans: SubscriptionPlan[] = [
 ];
 
 const Subscribe: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubscribe = async (plan: SubscriptionPlan) => {
     try {
+      setIsLoading(true);
+
       // Отправляем событие в бота для создания счета
       WebApp.sendData(JSON.stringify({
         action: 'subscribe',
@@ -45,7 +50,7 @@ const Subscribe: React.FC = () => {
         ]
       });
 
-      // После закрытия попапа отправляем запрос на оплату
+      // После закрытия попапа показываем главную кнопку
       WebApp.MainButton.setText('Оплатить');
       WebApp.MainButton.show();
       WebApp.MainButton.onClick(() => {
@@ -54,6 +59,8 @@ const Subscribe: React.FC = () => {
     } catch (error) {
       console.error('Payment error:', error);
       WebApp.showAlert('Произошла ошибка при оформлении подписки');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -66,8 +73,11 @@ const Subscribe: React.FC = () => {
             <h3>{plan.title}</h3>
             <p>{plan.description}</p>
             <p className="price">{plan.price} ₽</p>
-            <button onClick={() => handleSubscribe(plan)}>
-              Выбрать план
+            <button 
+              onClick={() => handleSubscribe(plan)}
+              disabled={isLoading}
+            >
+              {isLoading ? <LoadingSpinner size="small" /> : 'Выбрать план'}
             </button>
           </div>
         ))}
