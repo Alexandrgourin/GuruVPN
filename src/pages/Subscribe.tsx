@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import WebApp from '@twa-dev/sdk';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 interface SubscriptionPlan {
   id: string;
@@ -27,34 +28,69 @@ const plans: SubscriptionPlan[] = [
 ];
 
 const Subscribe: React.FC = () => {
-  const handleSubscribe = async (plan: SubscriptionPlan) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+
+  // Эффект для управления главной кнопкой
+  useEffect(() => {
+    // Очищаем предыдущие обработчики
+    WebApp.MainButton.offClick();
+
+    if (selectedPlan) {
+      WebApp.MainButton.setText('Оплатить');
+      WebApp.MainButton.show();
+      WebApp.MainButton.onClick(handlePayment);
+    } else {
+      WebApp.MainButton.hide();
+    }
+
+    // Очистка при размонтировании
+    return () => {
+      WebApp.MainButton.offClick();
+      WebApp.MainButton.hide();
+    };
+  }, [selectedPlan]);
+
+  const handlePayment = async () => {
+    if (!selectedPlan) return;
+
     try {
+      setIsLoading(true);
+      WebApp.MainButton.showProgress();
+
       // Отправляем событие в бота для создания счета
       WebApp.sendData(JSON.stringify({
         action: 'subscribe',
-        plan: plan.id,
+        plan: selectedPlan.id,
       }));
 
       // Показываем сообщение пользователю
-      WebApp.showPopup({
+      const result = await WebApp.showPopup({
         title: 'Подписка',
-        message: `Вы выбрали план "${plan.title}". Стоимость ${plan.price} руб.`,
+        message: `Вы выбрали план "${selectedPlan.title}". Стоимость ${selectedPlan.price} руб.`,
         buttons: [
-          { type: 'ok', id: 'pay' },
+          { type: 'ok', id: 'confirm' },
           { type: 'cancel' }
         ]
       });
 
-      // После закрытия попапа отправляем запрос на оплату
-      WebApp.MainButton.setText('Оплатить');
-      WebApp.MainButton.show();
-      WebApp.MainButton.onClick(() => {
+      if (result === 'confirm') {
         WebApp.showAlert('Перенаправление на оплату...');
-      });
+      } else {
+        setSelectedPlan(null);
+      }
     } catch (error) {
       console.error('Payment error:', error);
       WebApp.showAlert('Произошла ошибка при оформлении подписки');
+    } finally {
+      setIsLoading(false);
+      WebApp.MainButton.hideProgress();
     }
+  };
+
+  const handleSelectPlan = (plan: SubscriptionPlan) => {
+    if (isLoading) return;
+    setSelectedPlan(plan);
   };
 
   return (
@@ -62,12 +98,19 @@ const Subscribe: React.FC = () => {
       <h2>Выберите план подписки</h2>
       <div className="subscription-plans">
         {plans.map((plan) => (
-          <div key={plan.id} className="plan-card">
+          <div 
+            key={plan.id} 
+            className={`plan-card ${selectedPlan?.id === plan.id ? 'selected' : ''}`}
+          >
             <h3>{plan.title}</h3>
             <p>{plan.description}</p>
             <p className="price">{plan.price} ₽</p>
-            <button onClick={() => handleSubscribe(plan)}>
-              Выбрать план
+            <button 
+              onClick={() => handleSelectPlan(plan)}
+              disabled={isLoading}
+              className={selectedPlan?.id === plan.id ? 'selected' : ''}
+            >
+              {isLoading ? <LoadingSpinner size="small" /> : 'Выбрать план'}
             </button>
           </div>
         ))}
