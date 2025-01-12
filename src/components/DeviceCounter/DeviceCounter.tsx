@@ -1,22 +1,30 @@
-import { useState } from 'react';
+import { FC } from 'react';
+import { Button } from '@vkontakte/vkui';
 import { deviceLimits } from '../../config/subscriptionPlans';
 import './DeviceCounter.css';
 
 interface DeviceCounterProps {
   value: number;
-  onChange: (count: number) => void;
+  onChange: (value: number) => void;
+  min?: number;
+  max?: number;
 }
 
-const DeviceCounter = ({ value, onChange }: DeviceCounterProps) => {
-  const handleIncrement = () => {
-    if (value < deviceLimits.max) {
-      onChange(value + 1);
+export const DeviceCounter: FC<DeviceCounterProps> = ({
+  value,
+  onChange,
+  min = deviceLimits.min,
+  max = deviceLimits.max,
+}) => {
+  const handleDecrease = () => {
+    if (value > min) {
+      onChange(value - 1);
     }
   };
 
-  const handleDecrement = () => {
-    if (value > deviceLimits.min) {
-      onChange(value - 1);
+  const handleIncrease = () => {
+    if (value < max) {
+      onChange(value + 1);
     }
   };
 
@@ -26,24 +34,24 @@ const DeviceCounter = ({ value, onChange }: DeviceCounterProps) => {
         Количество устройств
       </div>
       <div className="device-counter-controls">
-        <button
-          className="device-counter-button"
-          onClick={handleDecrement}
-          disabled={value <= deviceLimits.min}
+        <Button
+          size="l"
+          appearance="negative"
+          onClick={handleDecrease}
+          disabled={value <= min}
         >
           -
-        </button>
+        </Button>
         <span className="device-counter-value">{value}</span>
-        <button
-          className="device-counter-button"
-          onClick={handleIncrement}
-          disabled={value >= deviceLimits.max}
+        <Button
+          size="l"
+          appearance="positive"
+          onClick={handleIncrease}
+          disabled={value >= max}
         >
           +
-        </button>
+        </Button>
       </div>
     </div>
   );
 };
-
-export default DeviceCounter;

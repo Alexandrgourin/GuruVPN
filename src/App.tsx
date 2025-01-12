@@ -72,14 +72,16 @@ function App() {
           return;
         }
 
-        const user = await api.initUser({
-          telegramId: WebApp.initDataUnsafe.user.id,
-          username: WebApp.initDataUnsafe.user.username,
-        });
-        
-        // Сохраняем ID пользователя в localStorage
-        localStorage.setItem('userId', user.id);
-        console.log('User initialized:', user);
+        if (WebApp.initDataUnsafe.user) {
+          const user = await api.initUser(
+            Number(WebApp.initDataUnsafe.user.id),
+            WebApp.initDataUnsafe.user?.username
+          );
+          
+          // Сохраняем ID пользователя в localStorage
+          localStorage.setItem('userId', user.id);
+          console.log('User initialized:', user);
+        }
       } catch (error) {
         console.error('Failed to initialize user:', error);
       }
