@@ -1,0 +1,48 @@
+.device-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.device-counter-label {
+  font-size: 0.9rem;
+  color: var(--tg-theme-hint-color);
+}
+
+.device-counter-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.device-counter-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.device-counter-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.device-counter-button:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+.device-counter-value {
+  font-size: 1.2rem;
+  min-width: 2rem;
+  text-align: center;
+}
