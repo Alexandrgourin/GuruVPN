@@ -1,5 +1,6 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import WebApp from '@twa-dev/sdk';
+import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
 
 interface SubscriptionPlan {
   id: string;
@@ -9,66 +10,81 @@ interface SubscriptionPlan {
   duration: number;
 }
 
-const plans: SubscriptionPlan[] = [
-  {
-    id: 'monthly',
-    title: '1 месяц',
-    description: 'Базовый план',
-    price: 299,
-    duration: 30,
-  },
-  {
-    id: 'yearly',
-    title: '12 месяцев',
-    description: 'Выгодное предложение',
-    price: 2990,
-    duration: 365,
-  },
-];
+const Subscribe = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
-const Subscribe: React.FC = () => {
-  const handleSubscribe = async (plan: SubscriptionPlan) => {
-    try {
-      // Отправляем событие в бота для создания счета
-      WebApp.sendData(JSON.stringify({
-        action: 'subscribe',
-        plan: plan.id,
-      }));
+  const subscriptionPlans: SubscriptionPlan[] = [
+    {
+      id: 'monthly',
+      title: '1 месяц',
+      description: 'Базовый план',
+      price: 299,
+      duration: 1
+    },
+    {
+      id: 'yearly',
+      title: '12 месяцев',
+      description: 'Выгодное предложение',
+      price: 2990,
+      duration: 12
+    }
+  ];
 
-      // Показываем сообщение пользователю
-      WebApp.showPopup({
-        title: 'Подписка',
-        message: `Вы выбрали план "${plan.title}". Стоимость ${plan.price} руб.`,
-        buttons: [
-          { type: 'ok', id: 'pay' },
-          { type: 'cancel' }
-        ]
-      });
+  useEffect(() => {
+    const handleMainButtonClick = () => {
+      if (!selectedPlan) return;
+      setIsLoading(true);
+      // Здесь будет логика обработки подписки
+      setTimeout(() => setIsLoading(false), 2000);
+    };
 
-      // После закрытия попапа отправляем запрос на оплату
-      WebApp.MainButton.setText('Оплатить');
-      WebApp.MainButton.show();
-      WebApp.MainButton.onClick(() => {
-        WebApp.showAlert('Перенаправление на оплату...');
-      });
-    } catch (error) {
-      console.error('Payment error:', error);
-      WebApp.showAlert('Произошла ошибка при оформлении подписки');
+    if (!selectedPlan) {
+      WebApp.MainButton.hide();
+      return;
+    }
+
+    WebApp.MainButton.show();
+    WebApp.MainButton.setParams({
+      text: 'Оплатить',
+      is_active: true,
+      color: '#2ea664'
+    });
+    WebApp.MainButton.onClick(handleMainButtonClick);
+    
+    return () => {
+      WebApp.MainButton.offClick(handleMainButtonClick);
+    };
+  }, [selectedPlan]);
+
+  const handlePlanSelect = (planId: string) => {
+    if (selectedPlan === planId) {
+      setSelectedPlan(null);
+    } else {
+      setSelectedPlan(planId);
     }
   };
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className="subscribe-container">
-      <h2>Выберите план подписки</h2>
+    <div className="subscription-page">
+      <h1>Выберите план подписки</h1>
       <div className="subscription-plans">
-        {plans.map((plan) => (
-          <div key={plan.id} className="plan-card">
-            <h3>{plan.title}</h3>
+        {subscriptionPlans.map((plan) => (
+          <div
+            key={plan.id}
+            className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''}`}
+            onClick={() => handlePlanSelect(plan.id)}
+          >
+            <h2>{plan.title}</h2>
             <p>{plan.description}</p>
-            <p className="price">{plan.price} ₽</p>
-            <button onClick={() => handleSubscribe(plan)}>
-              Выбрать план
-            </button>
+            <div className="price">
+              <span className="amount">{plan.price} ₽</span>
+              <span className="period">/{plan.duration === 1 ? 'месяц' : 'год'}</span>
+            </div>
           </div>
         ))}
       </div>
