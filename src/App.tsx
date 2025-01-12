@@ -20,9 +20,9 @@ const NavigationHandler = () => {
       WebApp.BackButton.hide();
     } else {
       WebApp.BackButton.show();
-      WebApp.BackButton.onClick(() => {
-        navigate(-1);
-      });
+      const handleBack = () => navigate(-1);
+      WebApp.BackButton.onClick(handleBack);
+      return () => WebApp.BackButton.offClick(handleBack);
     }
   }, [location.pathname, navigate]);
 
@@ -53,8 +53,9 @@ function App() {
 
     // Очистка при размонтировании
     return () => {
-      WebApp.BackButton.offClick();
-      WebApp.MainButton.offClick();
+      const noop = () => {};
+      WebApp.BackButton.offClick(noop);
+      WebApp.MainButton.offClick(noop);
     };
   }, []);
 

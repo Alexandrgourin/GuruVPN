@@ -10,108 +10,79 @@ interface SubscriptionPlan {
   duration: number;
 }
 
-const plans: SubscriptionPlan[] = [
-  {
-    id: 'monthly',
-    title: '1 месяц',
-    description: 'Базовый план',
-    price: 299,
-    duration: 30,
-  },
-  {
-    id: 'yearly',
-    title: '12 месяцев',
-    description: 'Выгодное предложение',
-    price: 2990,
-    duration: 365,
-  },
-];
-
-const Subscribe: React.FC = () => {
+const Subscribe = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
-  // Эффект для управления главной кнопкой
+  const subscriptionPlans: SubscriptionPlan[] = [
+    {
+      id: 'monthly',
+      title: '1 месяц',
+      description: 'Базовый план',
+      price: 299,
+      duration: 1
+    },
+    {
+      id: 'yearly',
+      title: '12 месяцев',
+      description: 'Выгодное предложение',
+      price: 2990,
+      duration: 12
+    }
+  ];
+
   useEffect(() => {
-    // Очищаем предыдущие обработчики
-    WebApp.MainButton.offClick();
+    const handleMainButtonClick = () => {
+      if (!selectedPlan) return;
+      setIsLoading(true);
+      // Здесь будет логика обработки подписки
+      setTimeout(() => setIsLoading(false), 2000);
+    };
 
     if (selectedPlan) {
-      WebApp.MainButton.setText('Оплатить');
       WebApp.MainButton.show();
-      WebApp.MainButton.onClick(handlePayment);
+      WebApp.MainButton.setParams({
+        text: 'Оплатить',
+        is_active: true,
+        color: '#2ea664'
+      });
+      WebApp.MainButton.onClick(handleMainButtonClick);
+      return () => WebApp.MainButton.offClick(handleMainButtonClick);
     } else {
       WebApp.MainButton.hide();
+      const noop = () => {};
+      return () => WebApp.MainButton.offClick(noop);
     }
-
-    // Очистка при размонтировании
-    return () => {
-      WebApp.MainButton.offClick();
-      WebApp.MainButton.hide();
-    };
   }, [selectedPlan]);
 
-  const handlePayment = async () => {
-    if (!selectedPlan) return;
-
-    try {
-      setIsLoading(true);
-      WebApp.MainButton.showProgress();
-
-      // Отправляем событие в бота для создания счета
-      WebApp.sendData(JSON.stringify({
-        action: 'subscribe',
-        plan: selectedPlan.id,
-      }));
-
-      // Показываем сообщение пользователю
-      const result = await WebApp.showPopup({
-        title: 'Подписка',
-        message: `Вы выбрали план "${selectedPlan.title}". Стоимость ${selectedPlan.price} руб.`,
-        buttons: [
-          { type: 'ok', id: 'confirm' },
-          { type: 'cancel' }
-        ]
-      });
-
-      if (result === 'confirm') {
-        WebApp.showAlert('Перенаправление на оплату...');
-      } else {
-        setSelectedPlan(null);
-      }
-    } catch (error) {
-      console.error('Payment error:', error);
-      WebApp.showAlert('Произошла ошибка при оформлении подписки');
-    } finally {
-      setIsLoading(false);
-      WebApp.MainButton.hideProgress();
+  const handlePlanSelect = (planId: string) => {
+    if (selectedPlan === planId) {
+      setSelectedPlan(null);
+    } else {
+      setSelectedPlan(planId);
     }
   };
 
-  const handleSelectPlan = (plan: SubscriptionPlan) => {
-    if (isLoading) return;
-    setSelectedPlan(plan);
-  };
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
-    <div className="subscribe-container">
-      <h2>Выберите план подписки</h2>
+    <div className="subscription-page">
+      <h1>Выберите план подписки</h1>
       <div className="subscription-plans">
-        {plans.map((plan) => (
-          <div 
-            key={plan.id} 
-            className={`plan-card ${selectedPlan?.id === plan.id ? 'selected' : ''}`}
+        {subscriptionPlans.map((plan) => (
+          <div
+            key={plan.id}
+            className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''}`}
+            onClick={() => handlePlanSelect(plan.id)}
           >
-            <h3>{plan.title}</h3>
+            <h2>{plan.title}</h2>
             <p>{plan.description}</p>
-            <p className="price">{plan.price} ₽</p>
-            <button 
-              onClick={() => handleSelectPlan(plan)}
-              disabled={isLoading}
-              className={selectedPlan?.id === plan.id ? 'selected' : ''}
-            >
-              {isLoading ? <LoadingSpinner size="small" /> : 'Выбрать план'}
-            </button>
+            <div className="price">
+              <span className="amount">{plan.price} ₽</span>
+              <span className="period">/{plan.duration === 1 ? 'месяц' : 'год'}</span>
+            </div>
           </div>
         ))}
       </div>
