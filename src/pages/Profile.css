@@ -1,0 +1,143 @@
+.profile-page {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.profile-page h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.profile-page h2 {
+  margin-bottom: 20px;
+  color: var(--tg-theme-text-color);
+}
+
+.subscription-section,
+.payments-section {
+  margin-bottom: 40px;
+}
+
+.subscription-card {
+  background: var(--tg-theme-bg-color);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.subscription-status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.subscription-status.active {
+  background-color: #2ea664;
+  color: white;
+}
+
+.subscription-status.expired {
+  background-color: #e01e5a;
+  color: white;
+}
+
+.subscription-status.pending {
+  background-color: #ecb22e;
+  color: white;
+}
+
+.subscription-details p {
+  margin: 8px 0;
+  color: var(--tg-theme-text-color);
+}
+
+.payments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.payment-card {
+  background: var(--tg-theme-bg-color);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.payment-date {
+  color: var(--tg-theme-hint-color);
+  font-size: 0.9em;
+}
+
+.payment-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.payment-status.completed {
+  background-color: #2ea664;
+  color: white;
+}
+
+.payment-status.pending {
+  background-color: #ecb22e;
+  color: white;
+}
+
+.payment-status.cancelled {
+  background-color: #e01e5a;
+  color: white;
+}
+
+.payment-details p {
+  margin: 5px 0;
+  color: var(--tg-theme-text-color);
+}
+
+.empty-profile {
+  text-align: center;
+  padding: 30px;
+  background: var(--tg-theme-bg-color);
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.empty-profile p {
+  margin-bottom: 20px;
+  color: var(--tg-theme-hint-color);
+}
+
+.primary-button {
+  background-color: var(--tg-theme-button-color, #2ea664);
+  color: var(--tg-theme-button-text-color, #fff);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 15px;
+  transition: opacity 0.2s;
+}
+
+.primary-button:hover {
+  opacity: 0.9;
+}
+
+.primary-button:active {
+  opacity: 0.8;
+}

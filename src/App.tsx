@@ -7,6 +7,7 @@ import Profile from './pages/Profile'
 import Support from './pages/Support'
 import Layout from './components/Layout'
 import WebApp from '@twa-dev/sdk'
+import { api } from './services/api'
 import './App.css'
 
 // Компонент для обработки навигации
@@ -54,6 +55,37 @@ function App() {
 
     // Настройка viewport
     WebApp.expand();
+
+    // Инициализируем пользователя при первом входе
+    const initUser = async () => {
+      try {
+        const initData = WebApp.initData;
+        if (!initData) {
+          console.error('No init data available');
+          return;
+        }
+
+        // Проверяем, есть ли уже инициализированный пользователь в localStorage
+        const storedUserId = localStorage.getItem('userId');
+        if (storedUserId) {
+          console.log('User already initialized:', storedUserId);
+          return;
+        }
+
+        const user = await api.initUser({
+          telegramId: WebApp.initDataUnsafe.user.id,
+          username: WebApp.initDataUnsafe.user.username,
+        });
+        
+        // Сохраняем ID пользователя в localStorage
+        localStorage.setItem('userId', user.id);
+        console.log('User initialized:', user);
+      } catch (error) {
+        console.error('Failed to initialize user:', error);
+      }
+    };
+
+    initUser();
   }, []);
 
   return (
