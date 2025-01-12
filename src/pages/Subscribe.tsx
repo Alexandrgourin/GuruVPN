@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import WebApp from '@twa-dev/sdk';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
-import DeviceCounter from '../components/DeviceCounter';
+import { DeviceCounter } from '../components/DeviceCounter';
 import { subscriptionPlans, deviceLimits } from '../config/subscriptionPlans';
 import { api } from '../services/api';
 import type { SubscriptionPlan } from '../types/subscription';
@@ -9,11 +9,10 @@ import './Subscribe.css';
 
 const Subscribe = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [deviceCount, setDeviceCount] = useState(deviceLimits.default);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Получаем ID пользователя из localStorage при загрузке компонента
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
     if (storedUserId) {
@@ -27,14 +26,11 @@ const Subscribe = () => {
       
       setIsLoading(true);
       try {
-        const plan = subscriptionPlans.find(p => p.id === selectedPlan);
-        if (!plan) throw new Error('План не найден');
-
-        const totalAmount = plan.price * deviceCount;
+        const totalAmount = selectedPlan.price * deviceCount;
 
         // Создаем платеж через API
         const payment = await api.createPayment({
-          planId: selectedPlan,
+          planId: selectedPlan.id,
           deviceCount,
           amount: totalAmount,
           userId,
@@ -52,7 +48,7 @@ const Subscribe = () => {
           action: 'payment_created',
           payment_id: payment.id,
           confirmation_url: payment.confirmation_url,
-          plan_id: selectedPlan,
+          plan_id: selectedPlan.id,
           device_count: deviceCount,
           amount: totalAmount,
         }));
@@ -70,10 +66,7 @@ const Subscribe = () => {
       return;
     }
 
-    const plan = subscriptionPlans.find(p => p.id === selectedPlan);
-    if (!plan) return;
-
-    const totalAmount = plan.price * deviceCount;
+    const totalAmount = selectedPlan.price * deviceCount;
 
     WebApp.MainButton.show();
     WebApp.MainButton.setParams({
@@ -89,11 +82,11 @@ const Subscribe = () => {
     };
   }, [selectedPlan, deviceCount, userId]);
 
-  const handlePlanSelect = (planId: string) => {
-    if (selectedPlan === planId) {
+  const handlePlanSelect = (plan: SubscriptionPlan) => {
+    if (selectedPlan === plan) {
       setSelectedPlan(null);
     } else {
-      setSelectedPlan(planId);
+      setSelectedPlan(plan);
     }
   };
 
@@ -108,8 +101,8 @@ const Subscribe = () => {
         {subscriptionPlans.map((plan) => (
           <div
             key={plan.id}
-            className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''} ${plan.isPopular ? 'popular' : ''}`}
-            onClick={() => handlePlanSelect(plan.id)}
+            className={`plan-card ${selectedPlan === plan ? 'selected' : ''} ${plan.isPopular ? 'popular' : ''}`}
+            onClick={() => handlePlanSelect(plan)}
           >
             {plan.isPopular && <div className="popular-badge">Популярный</div>}
             <h2>{plan.title}</h2>

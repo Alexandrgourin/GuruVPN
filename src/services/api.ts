@@ -33,6 +33,19 @@ export interface UserProfile {
   payments: Payment[];
 }
 
+interface CreatePaymentParams {
+  userId: string;
+  planId: string;
+  deviceCount: number;
+  amount: number;
+}
+
+interface PaymentResponse {
+  id: string;
+  status: string;
+  confirmationUrl: string;
+}
+
 export const api = {
   async initUser(telegramId: string | number, username?: string): Promise<User> {
     const response = await axios.post(`${API_URL}/users/init`, {
@@ -67,4 +80,9 @@ export const api = {
       throw error;
     }
   },
+
+  async createPayment(params: CreatePaymentParams): Promise<PaymentResponse> {
+    const response = await axios.post(`${API_URL}/payments`, params);
+    return response.data;
+  }
 };

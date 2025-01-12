@@ -1,1 +1,1 @@
-export { default } from './DeviceCounter';
+export { DeviceCounter } from './DeviceCounter';
