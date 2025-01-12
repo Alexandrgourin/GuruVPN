@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import WebApp from '@twa-dev/sdk';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
 
@@ -39,20 +39,22 @@ const Subscribe = () => {
       setTimeout(() => setIsLoading(false), 2000);
     };
 
-    if (selectedPlan) {
-      WebApp.MainButton.show();
-      WebApp.MainButton.setParams({
-        text: 'Оплатить',
-        is_active: true,
-        color: '#2ea664'
-      });
-      WebApp.MainButton.onClick(handleMainButtonClick);
-      return () => WebApp.MainButton.offClick(handleMainButtonClick);
-    } else {
+    if (!selectedPlan) {
       WebApp.MainButton.hide();
-      const noop = () => {};
-      return () => WebApp.MainButton.offClick(noop);
+      return;
     }
+
+    WebApp.MainButton.show();
+    WebApp.MainButton.setParams({
+      text: 'Оплатить',
+      is_active: true,
+      color: '#2ea664'
+    });
+    WebApp.MainButton.onClick(handleMainButtonClick);
+    
+    return () => {
+      WebApp.MainButton.offClick(handleMainButtonClick);
+    };
   }, [selectedPlan]);
 
   const handlePlanSelect = (planId: string) => {

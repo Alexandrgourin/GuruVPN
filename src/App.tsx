@@ -18,12 +18,16 @@ const NavigationHandler = () => {
     // Настраиваем кнопку "Назад"
     if (location.pathname === '/') {
       WebApp.BackButton.hide();
-    } else {
-      WebApp.BackButton.show();
-      const handleBack = () => navigate(-1);
-      WebApp.BackButton.onClick(handleBack);
-      return () => WebApp.BackButton.offClick(handleBack);
-    }
+      return;
+    } 
+    
+    WebApp.BackButton.show();
+    const handleBack = () => navigate(-1);
+    WebApp.BackButton.onClick(handleBack);
+    
+    return () => {
+      WebApp.BackButton.offClick(handleBack);
+    };
   }, [location.pathname, navigate]);
 
   return null;
@@ -50,13 +54,6 @@ function App() {
 
     // Настройка viewport
     WebApp.expand();
-
-    // Очистка при размонтировании
-    return () => {
-      const noop = () => {};
-      WebApp.BackButton.offClick(noop);
-      WebApp.MainButton.offClick(noop);
-    };
   }, []);
 
   return (
