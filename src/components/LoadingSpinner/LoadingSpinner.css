@@ -1,0 +1,36 @@
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner {
+  border-radius: 50%;
+  border: 2px solid var(--tg-theme-button-color);
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner-small .spinner {
+  width: 16px;
+  height: 16px;
+}
+
+.loading-spinner-medium .spinner {
+  width: 24px;
+  height: 24px;
+}
+
+.loading-spinner-large .spinner {
+  width: 32px;
+  height: 32px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

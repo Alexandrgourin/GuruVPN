@@ -31,12 +31,6 @@ const NavigationHandler = () => {
 
 function App() {
   useEffect(() => {
-    // Инициализация Telegram Mini App
-    WebApp.init({
-      acceptCustomStyles: true,
-      version: WebApp.version
-    });
-    
     // Сообщаем что приложение готово
     WebApp.ready();
     

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import WebApp from '@twa-dev/sdk';
-import LoadingSpinner from '../components/LoadingSpinner';
+import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
 
 interface SubscriptionPlan {
   id: string;
